@@ -103,8 +103,8 @@ pip install -r requirements.txt # fastapi, uvicorn
 然后配置选择器并启动。选择器要对着目标网页的 DOM 自己填(我相信你们会用元素选择器)，不填会 400：
 
 ````bash
-export INPUT_SELECTOR='textarea' # DeepSeek 输入框的实际 CSS 选择器
-export RESULT_SELECTOR='.ds-markdown' # 结果节点的实际 CSS 选择器
+export INPUT_SELECTOR='textarea' # 输入框的实际 CSS 选择器，我在DeepSeek找到的是这个，其他网站需要自己寻找
+export RESULT_SELECTOR='.ds-markdown' # 结果节点的实际 CSS 选择器，同上
 export BUTTON_SELECTOR='' # 留空 = 回车提交；填了就用按钮点击
 
 python3 server.py或干脆直接./run.sh
@@ -135,12 +135,40 @@ python3 server.py或干脆直接./run.sh
 | LAZY_TOOLS | true | 三轮渐进式披露：探针 → 工具名 → 只披露所选工具的完整 schema |
 | LOG_REQUESTS | true | 每次 /v1/messages 调用打印一行摘要到 stderr |
 | LOG_PROMPTS | 空 | 额外 dump 完整注入 prompt 与原始页面回复（调试工具调用时用） |
+| MODELS | 一组整活名字 | GET /v1/models 返回的模型名，逗号分隔；纯装饰（server 不校验 model，原样回显） |
 
 ## 端点
 
 ### GET /health
 
 检查脚本是否存在、osascript 是否可运行、选择器是否已配置。不占用 Safari 锁，长请求期间仍可响应。
+
+### GET /v1/models（模型发现）
+
+客户端（agent 工具、ccswitch 等）启动时常用它来「发现有哪些模型」。本服务不校验 model、只原样回显，所以这个列表纯属装饰——默认是一组整活名字：
+
+
+safari-114514, I_am_a_teapot, IAmAnEsteregg, definitely-not-gpt-5,
+safari-pro-max-ultra, claude-opus-5-5-but-safari, not-a-real-model
+
+
+bash
+curl -s http://127.0.0.1:8000/v1/models
+
+
+json
+{
+ "object": "list",
+ "data": [{"id": "safari-114514", "object": "model", "type": "model", "owned_by": "safari", "display_name": "safari-114514"}],
+ "has_more": false,
+ "first_id": "safari-114514",
+ "last_id": "not-a-real-model"
+}
+
+
+返回体同时带 OpenAI（object/owned_by）和 Anthropic（type/display_name）两套字段，两类客户端都能解析。用 MODELS 环境变量（逗号分隔）可换成你自己的名字。
+
+GET /v1/models/{model_id} 单模型查询，接受任意 id（名字是装饰，不做校验）。
 
 ### POST /chat（简单接口）
 
@@ -270,7 +298,7 @@ tool_result 渲染为 `<tool_result name="工具名">…内容…</tool_result>`
 
 **不听改脚本改坏了别怪我。**
 
-## 已知限制
+## 已知限制(目前只测试了DeepSeek，理论上只要找到输入框其他的也能用)
 
 - 只能驱动 Safari 当前窗口的当前标签页；并发请求由锁串行化，会排队等待。
 - 结果抓取依赖「结果文本连续 N 次轮询不变」判定完成，最多 POLL_MAX 次 × POLL_INTERVAL 秒（默认 60×3s≈180s）；超时返回 `ERR: 超时…`。长回复命中官网长度上限时，脚本会自动点击「继续」按钮取回完整回复（可用 CONTINUE_SELECTOR 覆盖按钮选择器）。

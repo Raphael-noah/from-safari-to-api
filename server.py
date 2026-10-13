@@ -108,6 +108,14 @@ INCLUDE_SYSTEM = os.environ.get("INCLUDE_SYSTEM", "true").lower() not in ("0", "
 LOG_REQUESTS = os.environ.get("LOG_REQUESTS", "true").lower() not in ("0", "false", "no")
 LOG_PROMPTS = os.environ.get("LOG_PROMPTS", "").lower() in ("1", "true", "yes", "on")
 
+# Model names advertised by GET /v1/models. Purely cosmetic: the server
+# ignores the model field and echoes it back. MODELS env (comma-separated)
+# overrides; default is a joke set.
+DEFAULT_MODELS = ['safari-114514', 'I_am_a_teapot', 'IAmAnEsteregg',
+ 'definitely-not-gpt-5', 'safari-pro-max-ultra',
+ 'claude-opus-5-5-but-safari', 'not-a-real-model']
+MODELS = [m.strip() for m in os.environ.get('MODELS', '').split(',') if m.strip()] or DEFAULT_MODELS
+
 # A single Safari window can only be driven one request at a time.
 _call_lock = threading.Lock()
 
@@ -335,6 +343,34 @@ def health() -> dict:
         "result_selector": DEFAULT_RESULT_SELECTOR or None,
         "button_selector": DEFAULT_BUTTON_SELECTOR or None,
     }
+
+
+def _model_entry(model_id: str) -> dict:
+ return {
+ 'id': model_id,
+ 'object': 'model',
+ 'type': 'model',
+ 'created': 1700000000,
+ 'created_at': '2026-10-13T00:00:00Z',
+ 'owned_by': 'safari',
+ 'display_name': model_id,
+ }
+
+
+@app.get('/v1/models')
+def list_models() -> dict:
+ return {
+ 'object': 'list',
+ 'data': [_model_entry(m) for m in MODELS],
+ 'has_more': False,
+ 'first_id': MODELS[0] if MODELS else None,
+ 'last_id': MODELS[-1] if MODELS else None,
+ }
+
+
+@app.get('/v1/models/{model_id}')
+def get_model(model_id: str) -> dict:
+ return _model_entry(model_id)
 
 
 @app.api_route("/api/hello", methods=["GET", "HEAD"])
