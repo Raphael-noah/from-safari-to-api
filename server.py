@@ -377,6 +377,20 @@ def get_model(model_id: str) -> dict:
 def api_hello() -> dict:
     """Health check used by Anthropic-style clients (ccswitch / Claude Code)."""
     return {"message": "hello"}
+@app.get('/user/balance')
+@app.get('/v1/user/balance')
+def user_balance() -> dict:
+    """DeepSeek-style balance endpoint (cc-switch 读 is_active + balance)。
+    这服务扒网页不要钱，所以余额是装出来的。"""
+    return {
+        'is_active': True,
+        'is_available': True,
+        'balance': 999999999.0,
+        'currency': 'USD',
+        'unit': 'USD',
+        'note': '本地扒网页，token 都没数过，余额纯装饰',
+        'balance_infos': [{'currency': 'USD', 'total_balance': '999999999.0'}],
+    }
 
 
 @app.post("/chat", response_model=ChatResponse)

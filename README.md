@@ -170,6 +170,27 @@ json
 
 GET /v1/models/{model_id} 单模型查询，接受任意 id（名字是装饰，不做校验）。
 
+### GET /user/balance（余额查询）
+
+DeepSeek 风格的余额接口（别名 /v1/user/balance）。cc-switch 这类客户端会读它来显示「剩余额度」。本服务扒网页不要钱，所以余额是装的：
+
+bash
+curl -s http://127.0.0.1:8000/user/balance
+
+
+json
+{
+ "is_active": true,
+ "is_available": true,
+ "balance": 999999999.0,
+ "currency": "USD",
+ "unit": "USD",
+ "note": "本地扒网页，token 都没数过，余额纯装饰"
+}
+
+
+字段同时满足 cc-switch 的 extractor（读 is_active / balance）和 DeepSeek 的 balance_infos 结构。永远花不完——因为它本来就不花钱。
+
 ### POST /chat（简单接口）
 
 
