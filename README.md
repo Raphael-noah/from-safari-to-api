@@ -148,15 +148,15 @@ python3 server.py或干脆直接./run.sh
 客户端（agent 工具、ccswitch 等）启动时常用它来「发现有哪些模型」。本服务不校验 model、只原样回显，所以这个列表纯属装饰——默认是一组整活名字：
 
 
-safari-114514, I_am_a_teapot, IAmAnEsteregg, definitely-not-gpt-5,
-safari-pro-max-ultra, claude-opus-5-5-but-safari, not-a-real-model
+safari-114514, I_am_a_teapot, IAmAnEsteregg, definitely-not-gpt-5, safari-pro-max-ultra, claude-opus-5-5-but-safari, not-a-real-model
+（我太有才了）
 
 
-bash
+````bash
 curl -s http://127.0.0.1:8000/v1/models
+````
 
-
-json
+````json
 {
  "object": "list",
  "data": [{"id": "safari-114514", "object": "model", "type": "model", "owned_by": "safari", "display_name": "safari-114514"}],
@@ -164,6 +164,7 @@ json
  "first_id": "safari-114514",
  "last_id": "not-a-real-model"
 }
+````
 
 
 返回体同时带 OpenAI（object/owned_by）和 Anthropic（type/display_name）两套字段，两类客户端都能解析。用 MODELS 环境变量（逗号分隔）可换成你自己的名字。
@@ -172,13 +173,13 @@ GET /v1/models/{model_id} 单模型查询，接受任意 id（名字是装饰，
 
 ### GET /user/balance（余额查询）
 
-DeepSeek 风格的余额接口（别名 /v1/user/balance）。cc-switch 这类客户端会读它来显示「剩余额度」。本服务扒网页不要钱，所以余额是装的：
+DeepSeek 风格的余额接口（别名 /v1/user/balance）。cc-switch 这类客户端会读它来显示「剩余额度」。扒网页不要钱，所以余额是我瞎编的：
 
-bash
+````bash
 curl -s http://127.0.0.1:8000/user/balance
+````
 
-
-json
+````json
 {
  "is_active": true,
  "is_available": true,
@@ -187,7 +188,7 @@ json
  "unit": "USD",
  "note": "都这样了你还是想配余额查询吗，苦命的孩子啊"
 }
-
+````
 
 字段同时满足 cc-switch 的 extractor（读 is_active / balance）和 DeepSeek 的 balance_infos 结构。永远花不完——因为它本来就不花钱。
 
