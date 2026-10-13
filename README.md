@@ -1,3 +1,5 @@
+**🌐 [English](README_EN.md) | 中文**
+
 # from-safari-to-api
 
 把 Safari 的网页对话界面（如 chat.deepseek.com）包装成 API（毕竟大多数情况下网站是免费的）。也可接入 Claude Code / ccswitch 等 agent 工具（支持Anthropic Messages API 与 OpenAI Chat Completions 两套协议）。
