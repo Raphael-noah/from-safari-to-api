@@ -185,7 +185,7 @@ json
  "balance": 999999999.0,
  "currency": "USD",
  "unit": "USD",
- "note": "本地扒网页，token 都没数过，余额纯装饰"
+ "note": "都这样了你还是想配余额查询吗，苦命的孩子啊"
 }
 
 
