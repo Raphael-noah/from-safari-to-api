@@ -1,3 +1,5 @@
+**🌐 English | [中文](README.md)**
+
 # from-safari-to-api
 
 Wrap web chat UIs (e.g., chat.deepseek.com) into an API (since most websites are free, after all). It can also be integrated with AI agent tools like Claude Code / ccswitch (supports both Anthropic Messages API and OpenAI Chat Completions).
